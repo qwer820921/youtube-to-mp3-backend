@@ -16,7 +16,7 @@ app.post('/convert', async (req, res) => {
   const outputFile = path.join(__dirname, `output-${videoId}.mp3`);
 
   // 使用 yt-dlp 下載並轉換為 MP3
-  const command = `yt-dlp --extract-audio --audio-format mp3 --audio-quality 320k -o "${outputFile}" "${url}"`;
+  const command = `yt-dlp --extract-audio --audio-format mp3 --audio-quality 128k -o "${outputFile}" "${url}"`;
   exec(command, (error) => {
     if (error) {
       console.error(error);
