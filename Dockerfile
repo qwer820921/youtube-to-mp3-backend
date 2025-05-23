@@ -12,7 +12,7 @@ ENV PATH="/venv/bin:$PATH"
 
 # 安裝 yt-dlp 到 virtualenv
 RUN pip install --upgrade pip
-RUN pip install yt-dlp
+RUN pip install -U yt-dlp
 
 # 複製你的 Node.js 專案
 COPY . .
