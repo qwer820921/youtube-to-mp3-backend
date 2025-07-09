@@ -1,25 +1,34 @@
+# 使用 python:3.11-slim 作為基礎映像
 FROM python:3.11-slim
 
-# 建立工作資料夾
+# 設置工作目錄
 WORKDIR /app
 
-# 安裝系統依賴（可選）
-RUN apt-get update && apt-get install -y ffmpeg curl
+# 安裝系統依賴
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    curl \
+    python3-venv \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
 
-# 建立並啟用 virtualenv
+# 創建並啟用虛擬環境
 RUN python3 -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 
-# 安裝 yt-dlp 到 virtualenv
-RUN pip install --upgrade pip
-RUN pip install -U yt-dlp
+# 升級 pip 並安裝 yt-dlp
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir -U yt-dlp
 
-# 複製你的 Node.js 專案
+# 複製應用程式檔案
 COPY . .
 
-# 安裝 Node.js & Express 相關依賴（假設你是 Node + Python 混合應用）
-RUN apt-get install -y nodejs npm
+# 安裝 Node.js 依賴
 RUN npm install
 
-# 啟動應用
+# 設置 Railway 提供的 PORT 環境變數
+ENV PORT=$PORT
+
+# 啟動應用程式
 CMD ["node", "index.js"]
