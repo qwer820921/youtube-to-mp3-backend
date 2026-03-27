@@ -1,4 +1,4 @@
-/*  server.js  */
+/*  index.js  */
 const express = require('express');
 const { exec }  = require('child_process');
 const fs        = require('fs');
@@ -48,11 +48,12 @@ app.post('/convert', async (req, res) => {
   // --- yt‑dlp 指令 ---
   const commandArgs = [
     'yt-dlp',
+    '-f', 'ba/b', // 新增：優先尋找最佳音訊 (bestaudio)，若無則退而求其次找最佳可用格式 (best)
     '--extract-audio',
     '--audio-format', 'mp3',
     '--audio-quality', '128k',
-    '--extractor-args', '"youtube:player_client=web,ios"',
-    '--user-agent', '"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"',
+    '--extractor-args', '"youtube:player_client=android,ios"', // 修改：拿掉 web，改用 android/ios API 來完美避開嚴格的 JS 驗證
+    // 刪除：把原本的 --user-agent 拿掉。交給 yt-dlp 自動處理，才不會跟上面的手機 API 產生衝突
     '-o', `"${outputFile}"`
   ];
 
