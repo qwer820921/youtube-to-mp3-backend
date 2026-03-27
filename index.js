@@ -46,13 +46,15 @@ app.post('/convert', async (req, res) => {
   }
 
   // --- yt‑dlp 指令 ---
+  // --- yt‑dlp 指令 ---
   const commandArgs = [
     'yt-dlp',
     '-f', 'ba/b', 
     '--extract-audio',
     '--audio-format', 'mp3',
     '--audio-quality', '128k',
-    // 🗑️ 刪除了 --extractor-args 那一行
+    '--force-ipv6', // 對策一：強制使用 IPv6。Railway 等雲端的 IPv4 通常已經整段被 YouTube 黑名單了，用 IPv6 能大幅降低被當成機器人的機率。
+    '--extractor-args', '"youtube:player_client=tv,web"', // 對策二：偽裝成「智慧電視 (tv)」。電視版的 API 防護比網頁版弱很多，而且重點是它「支援 Cookies」！
     '-o', `"${outputFile}"`
   ];
 
