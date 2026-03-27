@@ -53,8 +53,7 @@ app.post('/convert', async (req, res) => {
     '--extract-audio',
     '--audio-format', 'mp3',
     '--audio-quality', '128k',
-    '--force-ipv6', // 對策一：強制使用 IPv6
-    '--extractor-args', '"youtube:player_client=tv,web"', // 對策二：偽裝成智慧電視
+    '--extractor-args', '"youtube:player_client=tv,web"', // 繼續偽裝成智慧電視 (支援 Cookies 且防護較弱)
     '-o', `"${outputFile}"`
   ];
 
