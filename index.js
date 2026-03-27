@@ -46,20 +46,23 @@ app.post('/convert', async (req, res) => {
   }
 
   // --- yt‑dlp 指令 ---
-  // --- yt‑dlp 指令 ---
   const commandArgs = [
     'yt-dlp',
     '-f', 'ba/b', 
     '--extract-audio',
     '--audio-format', 'mp3',
     '--audio-quality', '128k',
-    '--extractor-args', '"youtube:player_client=tv,web"', // 繼續偽裝成智慧電視 (支援 Cookies 且防護較弱)
+    '--extractor-args', '"youtube:player_client=android"', // 終極對策：強制只使用 Android API，徹底避開網頁版的所有防護！
     '-o', `"${outputFile}"`
   ];
 
+  // 🗑️ 【非常重要】把原本載入 Cookies 的這段註解掉或刪掉！
+  // 我們這次要「不帶證件」闖關，才不會被逼迫走網頁版通道
+  /*
   if (useCookies) {
     commandArgs.push('--cookies', `"${cookiesPath}"`);
   }
+  */
 
   commandArgs.push(`"${url}"`);
 
