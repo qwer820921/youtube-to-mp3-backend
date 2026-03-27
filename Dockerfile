@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     nodejs \
     npm \
+    && ln -s /usr/bin/nodejs /usr/bin/node || true \
     && rm -rf /var/lib/apt/lists/*
 
 # 創建並啟用虛擬環境

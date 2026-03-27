@@ -51,6 +51,7 @@ app.post('/convert', async (req, res) => {
     '--extract-audio',
     '--audio-format', 'mp3',
     '--audio-quality', '128k',
+    '--extractor-args', '"youtube:player_client=web,ios"',
     '-o', `"${outputFile}"`
   ];
 
