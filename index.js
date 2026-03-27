@@ -48,12 +48,11 @@ app.post('/convert', async (req, res) => {
   // --- yt‑dlp 指令 ---
   const commandArgs = [
     'yt-dlp',
-    '-f', 'ba/b', // 新增：優先尋找最佳音訊 (bestaudio)，若無則退而求其次找最佳可用格式 (best)
+    '-f', 'ba/b', 
     '--extract-audio',
     '--audio-format', 'mp3',
     '--audio-quality', '128k',
-    '--extractor-args', '"youtube:player_client=android,ios"', // 修改：拿掉 web，改用 android/ios API 來完美避開嚴格的 JS 驗證
-    // 刪除：把原本的 --user-agent 拿掉。交給 yt-dlp 自動處理，才不會跟上面的手機 API 產生衝突
+    // 🗑️ 刪除了 --extractor-args 那一行
     '-o', `"${outputFile}"`
   ];
 
