@@ -1,25 +1,21 @@
-/*  index.js  */
+/* index.js  */
 const express = require('express');
 const { exec }  = require('child_process');
-const fs        = require('fs');
+const fs         = require('fs');
 const path      = require('path');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// -------------- 基本設定 -----------------
 app.use(express.json());
 
-// -------------- 路由 -----------------
 app.post('/convert', async (req, res) => {
   const { url } = req.body;
 
-  // --- 基本驗證 ---
   if (!url || (!url.includes('youtube.com') && !url.includes('youtu.be'))) {
     return res.status(400).json({ error: 'Invalid YouTube URL' });
   }
 
-  // --- 解析 videoId ---
   let videoId = '';
   try {
     const u = new URL(url.startsWith('http') ? url : `https://${url}`);
@@ -28,63 +24,40 @@ app.post('/convert', async (req, res) => {
     return res.status(400).json({ error: 'Malformed URL' });
   }
 
-  if (!videoId) {
-    return res.status(400).json({ error: 'Cannot parse video ID' });
-  }
+  const outputFile = path.join(__dirname, `output-${videoId}.mp3`);
 
-  // --- 組路徑 ---
-  const outputFile  = path.join(__dirname, `output-${videoId}.mp3`);
-  const cookiesPath = path.join(__dirname, 'config', 'cookies.txt');
-
-  // --- 檢查 cookies.txt ---
-  let useCookies = false;
-  if (fs.existsSync(cookiesPath)) {
-    useCookies = true;
-    console.log('Using cookies from config/cookies.txt');
-  } else {
-    console.warn('Warning: cookies.txt not found in /config. High risk of bot detection!');
-  }
-
-  // --- yt‑dlp 指令 ---
+  // --- 終極純淨版 yt-dlp 指令 ---
+  // 完全不讀取 cookies，只用 Android API 偽裝
   const commandArgs = [
     'yt-dlp',
     '-f', 'ba/b', 
     '--extract-audio',
     '--audio-format', 'mp3',
     '--audio-quality', '128k',
-    '--extractor-args', '"youtube:player_client=android"', // 終極對策：強制只使用 Android API，徹底避開網頁版的所有防護！
-    '-o', `"${outputFile}"`
+    '--extractor-args', '"youtube:player_client=android"', 
+    '-o', `"${outputFile}"`,
+    `"${url}"`
   ];
-
-  // 🗑️ 【非常重要】把原本載入 Cookies 的這段註解掉或刪掉！
-  // 我們這次要「不帶證件」闖關，才不會被逼迫走網頁版通道
-  /*
-  if (useCookies) {
-    commandArgs.push('--cookies', `"${cookiesPath}"`);
-  }
-  */
-
-  commandArgs.push(`"${url}"`);
 
   const command = commandArgs.join(' ');
 
-  // --- 執行 yt‑dlp ---
   exec(command, (error, _stdout, stderr) => {
     if (error) {
-      console.error(stderr || error);
+      console.error('yt-dlp 錯誤詳情:', stderr || error);
       return res.status(500).json({ error: 'Conversion failed' });
     }
 
-    // --- 傳送檔案 ---
-    res.download(outputFile, `audio-${videoId}.mp3`, (err) => {
-      // 無論成功或失敗都嘗試刪除暫存檔
-      try { fs.unlinkSync(outputFile); } catch (e) {}
-      if (err) { console.error(err); }
-    });
+    if (fs.existsSync(outputFile)) {
+      res.download(outputFile, `audio-${videoId}.mp3`, (err) => {
+        try { fs.unlinkSync(outputFile); } catch (e) {}
+        if (err) { console.error('下載傳送錯誤:', err); }
+      });
+    } else {
+      res.status(500).json({ error: 'File not found after conversion' });
+    }
   });
 });
 
-// -------------- 啟動 -----------------
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT} (Clean Mode)`);
 });
