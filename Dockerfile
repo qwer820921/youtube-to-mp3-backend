@@ -17,9 +17,8 @@ RUN apt-get update && apt-get install -y \
 RUN python3 -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 
-# 升級 pip 並安裝 yt-dlp
-RUN pip install --no-cache-dir --upgrade pip
-RUN pip install --no-cache-dir -U yt-dlp
+# 強制升級 pip 並重新安裝/更新 yt-dlp
+RUN pip install --no-cache-dir --upgrade pip yt-dlp
 
 # 複製應用程式檔案
 COPY . .

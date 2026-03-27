@@ -37,20 +37,30 @@ app.post('/convert', async (req, res) => {
   const cookiesPath = path.join(__dirname, 'config', 'cookies.txt');
 
   // --- 檢查 cookies.txt ---
-  if (!fs.existsSync(cookiesPath)) {
-    return res.status(500).json({ error: 'cookies.txt not found in /config' });
+  let useCookies = false;
+  if (fs.existsSync(cookiesPath)) {
+    useCookies = true;
+    console.log('Using cookies from config/cookies.txt');
+  } else {
+    console.warn('Warning: cookies.txt not found in /config. High risk of bot detection!');
   }
 
   // --- yt‑dlp 指令 ---
-  const command = [
+  const commandArgs = [
     'yt-dlp',
-    '--cookies', `"${cookiesPath}"`,
     '--extract-audio',
     '--audio-format', 'mp3',
     '--audio-quality', '128k',
-    '-o', `"${outputFile}"`,
-    `"${url}"`
-  ].join(' ');
+    '-o', `"${outputFile}"`
+  ];
+
+  if (useCookies) {
+    commandArgs.push('--cookies', `"${cookiesPath}"`);
+  }
+
+  commandArgs.push(`"${url}"`);
+
+  const command = commandArgs.join(' ');
 
   // --- 執行 yt‑dlp ---
   exec(command, (error, _stdout, stderr) => {
